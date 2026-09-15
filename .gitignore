@@ -1,0 +1,35 @@
+# Local private inputs and generated outputs
+/private/
+/data/
+/artifacts/
+/resumes/
+/logs/
+/browser-profile/
+/upstream/
+.env
+.env.*
+!.env.example
+*.local.json
+*.local.yaml
+*.local.yml
+config.yaml
+profile.json
+credentials.json
+cookies.json
+storage-state.json
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.log
+
+# Runtime / build
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+node_modules/
+dist/
+.DS_Store
+Thumbs.db

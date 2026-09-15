@@ -1,0 +1,29 @@
+{
+  "schema_version": "0.1-draft",
+  "purpose": "Design example only; no runtime consumes this file yet. Copy to private/profile.json and fill verified facts locally.",
+  "profile_version": null,
+  "facts": [],
+  "preferences": {
+    "cities": [],
+    "target_roles": [],
+    "recruitment_type": null,
+    "salary_min_monthly_cny": null,
+    "exclude_outsourcing": null,
+    "resume_languages": ["zh-CN", "en"],
+    "company_allowlist": [],
+    "company_blocklist": []
+  },
+  "resumes": [],
+  "screening_answers": [],
+  "review_policy": {
+    "submit_mode": "manual",
+    "require_fact_verification": true,
+    "require_material_review": true
+  },
+  "llm": {
+    "provider": null,
+    "model": null,
+    "api_key_env": "JOBPILOT_LLM_API_KEY",
+    "daily_budget_cny": null
+  }
+}

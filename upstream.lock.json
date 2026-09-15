@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-09-15",
+  "verification": "Source inspection only; dependencies not installed; no live recruitment website tests.",
+  "repositories": [
+    {
+      "name": "BossHunter",
+      "url": "https://github.com/shengjidaguai-china/BossHunter.git",
+      "commit": "059bbe9d5c5cc306040cbdf387ac0680c00a1449",
+      "version": "2.4.0",
+      "local_relative_path": "../upstream/BossHunter",
+      "license_observed": "PolyForm Noncommercial 1.0.0",
+      "role": "Selected domestic-platform component, run independently",
+      "vendored": false
+    },
+    {
+      "name": "JobFill",
+      "url": "https://github.com/Thesirloc/job-autofill.git",
+      "commit": "c595088e0024cb29cb09d45b34f5a427d098c839",
+      "version": "0.1.2",
+      "local_relative_path": "../upstream/job-autofill",
+      "license_observed": "No LICENSE file found in inspected snapshot; reuse authorization unresolved",
+      "role": "Optional independent ATS autofill evaluation",
+      "vendored": false
+    }
+  ]
+}
