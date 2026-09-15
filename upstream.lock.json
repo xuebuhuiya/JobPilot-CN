@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "checked_on": "2026-09-15",
-  "verification": "Source inspection only; dependencies not installed; no live recruitment website tests.",
+  "verification": "BossHunter installed on Windows: build, CLI, health, empty jobs API and blank Chrome connection verified. JobFill remains source inspection only. No live recruitment website or LLM tests.",
   "repositories": [
     {
       "name": "BossHunter",

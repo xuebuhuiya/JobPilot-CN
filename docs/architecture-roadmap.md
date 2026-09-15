@@ -6,7 +6,7 @@
 
 | 模块 | 责任 | 首期实现路径 |
 |---|---|---|
-| SourceAdapter | 输出原始 JD 与来源证据 | BossHunter 只读 SQLite 快照；官网链接/文本导入 |
+| SourceAdapter | 输出原始 JD 与来源证据 | 优先使用 BossHunter 本地 GET /api/jobs；必要时只读 SQLite 快照；官网链接/文本导入 |
 | JobNormalizer | 字段清洗、岗位 ID 与去重 | 规则优先，不确定重复交人工处理 |
 | ProfileStore | 保存本人核验过的事实 | 本地 JSON 起步，事实有稳定 ID 和状态 |
 | ScoringService | 资格检查、评分、解释与缺口 | LLM JSON 输出 + 校验 + 版本缓存 |
@@ -16,6 +16,8 @@
 | LocalUI | 岗位、分数、材料与台账审核 | 先最小列表与详情，不重建完整招聘系统 |
 
 BossHunter 的数据库是它自身运行状态的权威来源；JobPilot-CN 维护跨渠道台账。不直接向上游 SQLite 写入确认/已发送状态，不让两个系统同时写一份数据库。先采用只读连接或 SQLite 备份 API 生成一致性快照，再导入版本化中间 JSON；不能在写入中只复制主 DB 而漏掉 WAL。
+
+部署阶段新增证据：本地 `GET /api/jobs?limit=1&offset=0` 返回 200、数组与 `X-Total-Count`。后续优先评估该分页接口，限制 1–500 条/页；它是上游当前版本内部接口，仍需版本与结构验证。`POST /api/jobs/export` 是已有导出端点，业务字段完整性尚待非空岗位样本验证。上游 score 不能直接混用为未来统一评分，需保留来源与算法版本。
 
 ## 2. 数据契约
 
@@ -81,7 +83,7 @@ discovered → normalized → scored → shortlisted → materials_ready
 
 ### M1：独立底座运行 + 离线整合 MVP
 
-- [ ] 使用独立虚拟环境构建 BossHunter，并验证本地工作台。
+- [x] 使用独立虚拟环境构建 BossHunter，并验证本地工作台。
 - [ ] Profile 最小事实模型、JSON 校验、JD 手动导入、SQLite 台账。
 - [ ] 接入一个实际可用 LLM，结构化评分、版本缓存、失败处理。
 - [ ] 中文和英文材料包选择，事实约束差异与审核。

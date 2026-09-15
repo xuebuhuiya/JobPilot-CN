@@ -1,12 +1,12 @@
 # Windows 实际部署方案
 
-本文给出后续可执行步骤，**本轮只完成源码下载和静态检查，以下安装、配置与业务操作尚未执行**。先部署独立工具，再开发统一流水线。
+本文给出部署步骤。2026-09-15 已完成 BossHunter 安装、本地工作台与独立 Chrome 连接验证；平台登录、真实采集和 LLM 调用尚未完成。详细证据见 [部署验收](deployment-status.md)。先部署独立工具，再开发统一流水线。
 
 ## 1. 部署结构与依赖
 
 单台 Windows 电脑、本地浏览器、单用户。BossHunter 使用独立 Python 虚拟环境；Node.js 用于前端和浏览器运行时；JobFill 是可选 Chrome 扩展。首期无需云服务器、Docker、Redis 或向量数据库。
 
-上游要求 Python 3.10+、Node.js 22+、Chrome。当前 PATH 找到 Python、Node、npm 与 Git，但未完成版本/安装健康检查，也未核实 Chrome 安装位置。BossHunter 的 AI 服务在本地面板配置，模型名与 Key 以实际服务为准。
+上游要求 Python 3.10+、Node.js 22+、Chrome。本机已验证 Python 3.11.3、Node 24.15.0、npm 11.12.1；Chrome 位于 Program Files 下的 Google/Chrome/Application。BossHunter 的 AI 服务在本地面板配置，Key 本地填写。
 
 ## 2. 复现源码下载
 
@@ -41,12 +41,16 @@ npm.cmd --version
 python -m venv .venv
 npm.cmd --prefix src/bosshunter/web/frontend ci
 npm.cmd --prefix src/bosshunter/web/frontend run build
-.\.venv\Scripts\python.exe -m pip install -e .
+.\.venv\Scripts\python.exe -m pip install .
 .\.venv\Scripts\bosshunter.exe --help
 .\.venv\Scripts\bosshunter.exe web --no-open
 ```
 
 逐条执行并检查退出码；任一步失败先修复再继续。使用 `npm.cmd` 避免 PowerShell 对 npm.ps1 的执行策略差异；使用虚拟环境的绝对相对入口，无需激活脚本。必须先构建前端，因为源码仓库没有预生成的 frontend/dist。
+
+本机 Python 3.11 在中文路径下无法正确处理 editable 安装的 .pth，表现为 `ModuleNotFoundError: bosshunter.main`，因此使用普通安装。后续更新上游源码或重建前端后，需要重新执行 `pip install . --no-deps --force-reinstall`。首次安装不要加 `--no-deps`。
+
+若 npm 被环境强制为离线模式，给本次命令增加 `--offline=false --prefer-offline=false`；受限执行环境中的 `spawn EPERM` 需要允许构建子进程，不能误判为前端代码错误。本次没有更改机器全局 npm/Git 配置。
 
 启动后在浏览器打开 `http://127.0.0.1:8686`。该命令会占用终端，后续命令在另一个终端进入同一目录运行。
 
