@@ -10,9 +10,13 @@
 
 2026-09-16 更新：已完成 BOSS 扩大验证，新增21条岗位，其中19条成功评分、2条因JD不足跳过。现有30条历史记录（含用户此前移除的4条），独立资格/JD质量检查、SQLite岗位池及人工审阅/申请记录已实现，19项测试通过。原始分数不能覆盖校招等资格问题。
 
-本人重新登录 Chrome 后，扩大验证已完成，新增4条可人工评估岗位；其余待核实、低匹配或JD不足。当前岗位池入口为命令行和 Markdown 报告，未嵌入 BossHunter 页面，也未实现完整自动填表或投递。见 [使用说明](docs/job-pool.md) 和 [实现验收](docs/implementation-status-20260916.md)。
+本人重新登录 Chrome 后，扩大验证已完成，新增4条可人工评估岗位；其余待核实、低匹配或JD不足。现已提供独立的 JobPilot-CN 网页工作台：岗位筛选、JD/评分依据、审阅、沟通记录与申请状态回填，25项测试通过。自动填表和JobFill尚未接入。见 [网页使用说明](docs/web-workbench.md)、[台账规则](docs/job-pool.md) 和 [实现验收](docs/implementation-status-20260916.md)。
 
 ### 现在开始使用
+
+**自己的工作台：双击 `start-jobpilot.cmd`，打开 http://127.0.0.1:8787 。** 点击“同步岗位”读取采集结果；在详情保存审阅，在沟通页记录已发生的打招呼或回复。
+
+原有采集工具仍按以下方式使用：
 
 1. 双击 [start-workbench.cmd](start-workbench.cmd)，打开本地配置页；在「AI 设置」填 Key 并保存，在「个人信息」上传本人简历。
 2. 双击 [open-job-browser.cmd](open-job-browser.cmd)，在独立 Chrome 窗口登录 BOSS 和智联。
@@ -24,7 +28,7 @@
 |---|---|---|
 | [BossHunter](https://github.com/shengjidaguai-china/BossHunter) | 国内平台首选底座，独立运行 | BOSS 可审核后发送；智联只读采集与评分，投递手动完成；PolyForm 非商业许可 |
 | [JobFill](https://github.com/Thesirloc/job-autofill) | 外企表单辅助评估工具 | Greenhouse / Lever / Workday；当前快照未找到 LICENSE，不将代码并入本仓库；未验证真实站点 |
-| JobPilot-CN | 自建轻量整合层，待开发 | 统一数据、评分、简历版本、任务审核与投递台账 |
+| JobPilot-CN | 自建网页工作台与台账已实现 | 岗位、资格规则、审阅、沟通与申请记录；简历版本和填表对接待开发 |
 
 这两个项目不是现成互通的套件。共享 Profile、跨平台去重、统一评分及投递状态同步需要开发。
 
