@@ -8,7 +8,7 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
-VERSION = 'eligibility-quality-v1'
+VERSION = 'eligibility-quality-v2.1'
 ROOT = Path(__file__).resolve().parent
 
 def now():
@@ -29,7 +29,14 @@ def assess(job, profile):
         nonlocal gate
         gate = 'fail' if hard or gate == 'fail' else 'needs_verification'
         reasons.append({'code': code, 'evidence': evidence})
-    campus = bool(re.search(r'校招|应届|在校', title + experience)) or job.get('recruitment_type') == 'campus'
+    recruitment_type = job.get('recruitment_type')
+    campus_label = re.sub(r'非校招|不是校招|不限应届|不限在校', '', title + ' / ' + experience)
+    # BossHunter's type can be inferred from broad keywords, not a platform label.
+    campus = bool(re.search(r'校招|校园招聘|应届|在校', campus_label))
+    campus_requirement = re.search(r'(?:仅限|只招|限招|仅招|必须是|须为)\s*(?:\d{4}届)?\s*(?:应届(?:毕业)?生|在校生)|(?:面向|招聘对象[：:])\s*(?:\d{4}届)?\s*应届(?:毕业)?生', jd)
+    campus = campus or bool(campus_requirement)
+    mixed = recruitment_type == 'both' or bool(re.search(
+        r'校招[、/和与及\s]*社招(?:均可|皆可|都可)|社招[、/和与及\s]*校招(?:均可|皆可|都可)|接受社招|社招(?:也可|亦可)|应届(?:毕业)?生(?:也可|亦可|均可)', text + ' / ' + experience))
     # Treat only explicit graduation requirements as hard cohort exclusions.
     cohorts = re.findall(r'(20\d{2})\s*届', text)
     if cohorts and not profile.get('graduation_year'):
@@ -43,7 +50,19 @@ def assess(job, profile):
         if profile['graduation_year'] not in years and not flexible:
             flag('graduation_cohort', ' / '.join(sorted(set(cohorts))) + '届', True)
     if campus and profile.get('recruitment_type') == 'experienced':
-        flag('campus_eligibility', title + ' / ' + experience)
+        evidence = f'招聘类型={recruitment_type or "未标注"}；{title} / {experience}'
+        if campus_requirement:
+            evidence += '；正文：' + campus_requirement.group()
+        if mixed:
+            flag('recruitment_conflict', evidence + '；同时出现接受社招的信息，需核实')
+        else:
+            flag('campus_eligibility', '本人选择社招，岗位标注校招/应届/在校，直接排除；' + evidence, True)
+    elif campus and not profile.get('recruitment_type'):
+        flag('candidate_recruitment_unknown', '岗位面向校招，候选人招聘身份未确认')
+    elif not campus and recruitment_type == 'campus':
+        flag('campus_label_unverified', '上游分类为校招，但标题/经验标签/正文限定未提供明确证据，需核实')
+    elif not campus and recruitment_type not in {'experienced', 'both'} and not re.search(r'\d+\s*(?:年|[-–~至])|社招|社会招聘|非校招', title + experience):
+        flag('recruitment_unknown', '招聘类型未明确，经验标签也不足以判断是否社招')
     if re.search(r'仅限在校|在校生身份|须为在校', text) and profile.get('is_student') is False:
         flag('student_required', '岗位明确要求在校身份', True)
     # Experience tags and phrases may be flexible; flag instead of silently rejecting.

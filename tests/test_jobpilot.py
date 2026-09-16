@@ -16,7 +16,19 @@ def job(**kw):
 
 class Tests(unittest.TestCase):
     def test_campus_high_score_never_candidate(self):
-        self.assertEqual(assess(job(experience='在校/应届'),PROFILE)['decision'],'needs_verification')
+        self.assertEqual(assess(job(experience='在校/应届',score=99),PROFILE)['decision'],'excluded')
+    def test_inferred_campus_requires_evidence(self):
+        self.assertEqual(assess(job(recruitment_type='campus'),PROFILE)['decision'],'needs_verification')
+    def test_jd_only_campus_requirement(self):
+        self.assertEqual(assess(job(jd='仅限应届毕业生。'+'负责Agent开发。'*60),PROFILE)['decision'],'excluded')
+    def test_campus_system_work_is_not_requirement(self):
+        self.assertEqual(assess(job(jd='负责校园招聘系统开发。'*40),PROFILE)['eligibility'],'pass')
+    def test_mixed_recruitment_is_not_hard_rejected(self):
+        self.assertEqual(assess(job(title='Agent校招/社招均可'),PROFILE)['eligibility'],'needs_verification')
+    def test_unknown_recruitment(self):
+        self.assertEqual(assess(job(experience='经验不限'),PROFILE)['decision'],'needs_verification')
+    def test_negative_campus_label(self):
+        self.assertEqual(assess(job(title='Agent开发（非校招）'),PROFILE)['decision'],'review_candidate')
     def test_explicit_wrong_cohort(self):
         self.assertEqual(assess(job(jd='仅限2027届毕业生。'+'负责Agent开发。'*60),PROFILE)['decision'],'excluded')
     def test_allowed_cohort(self):
@@ -25,7 +37,7 @@ class Tests(unittest.TestCase):
         self.assertNotEqual(assess(job(jd='招聘2024-2026届毕业生。'+'负责Agent开发。'*60),PROFILE)['eligibility'],'fail')
     def test_missing_graduation_not_guessed(self):
         p={**PROFILE,'graduation_year':None}
-        self.assertNotEqual(assess(job(title='2027届校招'),p)['eligibility'],'fail')
+        self.assertEqual(assess(job(jd='要求2027届毕业生。'+'负责Agent开发。'*60),p)['eligibility'],'needs_verification')
     def test_short_generic_high_score(self):
         a=assess(job(jd='熟练掌握Python，1年以上开发经验。',score=99),PROFILE)
         self.assertEqual(a['decision'],'insufficient_jd')
